@@ -1,0 +1,36 @@
+\documentclass[a4paper,notitlepage]{article}
+\usepackage{authblk}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{url}
+\begin{document}
+\title{The theory of Light Emitting Diode (LED) reversing attacks}
+\author{Joe Loughry}
+\affil{University of Denver \\
+Ritchie School of Engineering and Computer Science\footnote{Email
+\href{mailto:joe.loughry@cs.du.edu}{joe.loughry@cs.du.edu}}}
+\affil{and \href{https://netoir.com}{Netoir.com}}
+\maketitle
+\begin{abstract}
+  LED reversing attacks depend on the relationship between LED photoelectric
+  current and the logic threshold value of the connection GPIO.
+\end{abstract}
+\maketitle
+\section{Introduction}
+LED reversing attacks were introduced in an oral presentation at EMC Europe
+2018 (Amsterdam) and first described in print in 2019 \cite{Loughry2019}.
+\section{Theory of Operation}
+Relationship between LED photocurrent, voltage, and the logic threshold of the
+connection GPIO.
+\subsection{Predictions}
+\section{What Systems are Affected}
+Arduino. Not the Raspberry Pi. Atmel ATSAMD21.
+\subsection{Arduino}
+Only the Arduino R1, b/c of the op-amp in R3.
+\subsection{Voting Machines}
+Example of what embedded systems might be at risk.
+\bibliographystyle{plain}
+\bibliography{consolidated_bibtex_file}
+\end{document}
+
