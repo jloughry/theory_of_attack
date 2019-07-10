@@ -1,0 +1,23 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{// the setup function runs once when you press reset or power the board}
+\PYG{k+kt}{void} \PYG{n+nf}{setup}\PYG{p}{()} \PYG{p}{\PYGZob{}}
+  \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{OUTPUT}\PYG{p}{);}
+  \PYG{c+c1}{// Look in the Serial Monitor window for results.}
+  \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{begin}\PYG{p}{(}\PYG{l+m+mi}{9600}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// the loop function runs over and over again forever}
+\PYG{k+kt}{void} \PYG{n+nf}{loop}\PYG{p}{()} \PYG{p}{\PYGZob{}}
+  \PYG{n}{digitalWrite}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{HIGH}\PYG{p}{);}   \PYG{c+c1}{// turn LED on}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}                         \PYG{c+c1}{// 50 ms}
+  \PYG{n}{digitalWrite}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{LOW}\PYG{p}{);}    \PYG{c+c1}{// turn the LED off}
+  \PYG{c+c1}{// Following is the attack listening malware; it runs for 1 s.}
+  \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{INPUT}\PYG{p}{);}
+  \PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i}\PYG{o}{\PYGZlt{}}\PYG{l+m+mi}{5}\PYG{p}{;} \PYG{n}{i}\PYG{o}{++}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+    \PYG{k+kt}{int} \PYG{n}{level} \PYG{o}{=} \PYG{n}{digitalRead}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{);}
+    \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{n}{level}\PYG{p}{);}
+    \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{200}\PYG{p}{);}
+  \PYG{p}{\PYGZcb{}}
+  \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{OUTPUT}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

@@ -1,6 +1,6 @@
 target = theory_of_attack
 
-latex_cmd = pdflatex
+latex_cmd = pdflatex --shell-escape
 
 all:: $(target).pdf
 

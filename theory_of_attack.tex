@@ -2,6 +2,7 @@
 \usepackage{authblk}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{minted}
 \usepackage{siunitx}
 \usepackage{url}
 \begin{document}
@@ -32,5 +33,33 @@ Only the Arduino R1, b/c of the op-amp in R3.
 Example of what embedded systems might be at risk.
 \bibliographystyle{plain}
 \bibliography{consolidated_bibtex_file}
+\appendix
+\section{Arduino Sketches}
+This was the first proof-of-concept to work correctly. It runs on an Adafruit
+Trinket M0 (Atmel ATSAMD21). The red `L' LED flashes once a second (to make it
+easier to aim the laser) and whenever it's dark, it's listening.
+\begin{minted}{c}
+// the setup function runs once when you press reset or power the board
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  // Look in the Serial Monitor window for results.
+  Serial.begin(9600);
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);   // turn LED on
+  delay(50);                         // 50 ms
+  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off
+  // Following is the attack listening malware; it runs for 1 s.
+  pinMode(LED_BUILTIN, INPUT);
+  for (int i=0; i<5; i++) {
+    int level = digitalRead(LED_BUILTIN);
+    Serial.println(level);
+    delay(200);
+  }
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+\end{minted}
 \end{document}
 
