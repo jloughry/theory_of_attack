@@ -1,0 +1,266 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}Wire.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}Adafruit\PYGZus{}GFX.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZdq{}Adafruit\PYGZus{}LEDBackpack.h\PYGZdq{}}
+
+\PYG{n}{Adafruit\PYGZus{}AlphaNum4} \PYG{n}{alpha4} \PYG{o}{=} \PYG{n}{Adafruit\PYGZus{}AlphaNum4}\PYG{p}{();}
+
+\PYG{k+kt}{char} \PYG{n}{string\PYGZus{}to\PYGZus{}display}\PYG{p}{[]} \PYG{o}{=} \PYG{l+s}{\PYGZdq{}        NORMAL OPERATION\PYGZdq{}}\PYG{p}{;}
+
+\PYG{k+kt}{char} \PYG{n}{canary}\PYG{p}{[]} \PYG{o}{=} \PYG{l+s}{\PYGZdq{}CANARY\PYGZdq{}}\PYG{p}{;}
+
+\PYG{k+kt}{char} \PYG{n}{large\PYGZus{}display\PYGZus{}buffer}\PYG{p}{[}\PYG{l+m+mi}{8}\PYG{p}{]} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}}\PYG{p}{,} \PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}}\PYG{p}{,} \PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}}\PYG{p}{,} \PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}}\PYG{p}{,} \PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}}\PYG{p}{,} \PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}}\PYG{p}{,} \PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}}\PYG{p}{,} \PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}}\PYG{p}{\PYGZcb{};}
+
+\PYG{k}{const} \PYG{k+kt}{int} \PYG{n}{bit\PYGZus{}interval} \PYG{o}{=} \PYG{l+m+mi}{1000}\PYG{p}{;} \PYG{c+c1}{// milliseconds}
+\PYG{k}{const} \PYG{k+kt}{int} \PYG{n}{tolerance} \PYG{o}{=} \PYG{l+m+mi}{500}\PYG{p}{;} \PYG{c+c1}{// milliseconds}
+\PYG{k}{const} \PYG{k+kt}{int} \PYG{n}{bit\PYGZus{}sampling\PYGZus{}time} \PYG{o}{=} \PYG{l+m+mi}{5}\PYG{p}{;} \PYG{c+c1}{// milliseconds}
+
+\PYG{k+kt}{void} \PYG{n+nf}{first\PYGZus{}module}\PYG{p}{(}\PYG{k+kt}{void}\PYG{p}{);}
+\PYG{k+kt}{void} \PYG{n+nf}{second\PYGZus{}module}\PYG{p}{(}\PYG{k+kt}{void}\PYG{p}{);}
+\PYG{k+kt}{void} \PYG{n+nf}{safe\PYGZus{}alpha\PYGZus{}write}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{digit}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{i}\PYG{p}{);}
+\PYG{k+kt}{void} \PYG{n+nf}{lamp\PYGZus{}test}\PYG{p}{(}\PYG{k+kt}{void}\PYG{p}{);}
+\PYG{k+kt}{void} \PYG{n+nf}{clear\PYGZus{}display}\PYG{p}{(}\PYG{k+kt}{void}\PYG{p}{);}
+
+\PYG{k+kt}{void} \PYG{n+nf}{setup}\PYG{p}{()} \PYG{p}{\PYGZob{}}
+  \PYG{k+kt}{bool} \PYG{n}{valid\PYGZus{}start\PYGZus{}bit} \PYG{o}{=} \PYG{n+nb}{false}\PYG{p}{;}
+
+  \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{begin}\PYG{p}{(}\PYG{l+m+mi}{9600}\PYG{p}{);}
+  \PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i}\PYG{o}{\PYGZlt{}}\PYG{l+m+mi}{10}\PYG{p}{;} \PYG{n}{i}\PYG{o}{++}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+    \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}In setup(); (\PYGZdq{}}\PYG{p}{);}
+    \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{n}{i}\PYG{p}{);}
+    \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}/10\PYGZdq{}}\PYG{p}{);}
+  \PYG{p}{\PYGZcb{}}
+
+  \PYG{n}{clear\PYGZus{}display}\PYG{p}{();}
+
+  \PYG{k}{for}\PYG{p}{(;;)} \PYG{p}{\PYGZob{}}
+    \PYG{k+kt}{int} \PYG{n}{time\PYGZus{}since\PYGZus{}last\PYGZus{}blink} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{c+c1}{// milliseconds}
+    \PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{)}\PYG{n}{strlen}\PYG{p}{(}\PYG{n}{string\PYGZus{}to\PYGZus{}display}\PYG{p}{);} \PYG{n}{i}\PYG{o}{++}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+      \PYG{k+kt}{int} \PYG{n}{elapsed\PYGZus{}time} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{c+c1}{// milliseconds}
+      \PYG{k}{const} \PYG{k+kt}{int} \PYG{n}{blink\PYGZus{}interval} \PYG{o}{=} \PYG{l+m+mi}{1000}\PYG{p}{;} \PYG{c+c1}{// milliseconds}
+      \PYG{k}{const} \PYG{k+kt}{int} \PYG{n}{display\PYGZus{}update\PYGZus{}interval} \PYG{o}{=} \PYG{l+m+mi}{150}\PYG{p}{;} \PYG{c+c1}{// milliseconds}
+
+      \PYG{n}{first\PYGZus{}module}\PYG{p}{();}
+      \PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{position} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{position} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{4}\PYG{p}{;} \PYG{n}{position}\PYG{o}{++}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n}{safe\PYGZus{}alpha\PYGZus{}write}\PYG{p}{(}\PYG{n}{position}\PYG{p}{,} \PYG{n}{i} \PYG{o}{+} \PYG{n}{position}\PYG{p}{);}
+      \PYG{p}{\PYGZcb{}}
+      \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+
+      \PYG{n}{second\PYGZus{}module}\PYG{p}{();}
+      \PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{position} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{position} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{4}\PYG{p}{;} \PYG{n}{position}\PYG{o}{++}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n}{safe\PYGZus{}alpha\PYGZus{}write}\PYG{p}{(}\PYG{n}{position}\PYG{p}{,} \PYG{n}{i} \PYG{o}{+} \PYG{n}{position} \PYG{o}{+} \PYG{l+m+mi}{4}\PYG{p}{);}
+      \PYG{p}{\PYGZcb{}}
+      \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+
+      \PYG{c+c1}{// Only blink the LED if it\PYGZsq{}s time to.}
+      \PYG{k}{if} \PYG{p}{(}\PYG{n}{time\PYGZus{}since\PYGZus{}last\PYGZus{}blink} \PYG{o}{\PYGZgt{}=} \PYG{n}{blink\PYGZus{}interval}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{OUTPUT}\PYG{p}{);}
+        \PYG{n}{digitalWrite}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{HIGH}\PYG{p}{);}
+        \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}
+        \PYG{n}{digitalWrite}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{LOW}\PYG{p}{);}
+        \PYG{n}{time\PYGZus{}since\PYGZus{}last\PYGZus{}blink} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+      \PYG{p}{\PYGZcb{}}
+
+      \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{INPUT}\PYG{p}{);}
+
+      \PYG{c+c1}{// I\PYGZsq{}m not sure if this first digitalRead() is necessary.}
+      \PYG{p}{(}\PYG{k+kt}{void}\PYG{p}{)}\PYG{n}{digitalRead}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{);}
+
+      \PYG{k}{while}\PYG{p}{(}\PYG{n}{digitalRead}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{))} \PYG{p}{\PYGZob{}}
+        \PYG{n}{delay}\PYG{p}{(}\PYG{n}{bit\PYGZus{}sampling\PYGZus{}time}\PYG{p}{);}
+        \PYG{n}{time\PYGZus{}since\PYGZus{}last\PYGZus{}blink} \PYG{o}{+=} \PYG{n}{bit\PYGZus{}sampling\PYGZus{}time}\PYG{p}{;}
+        \PYG{n}{elapsed\PYGZus{}time} \PYG{o}{+=} \PYG{n}{bit\PYGZus{}sampling\PYGZus{}time}\PYG{p}{;}
+      \PYG{p}{\PYGZcb{}}
+      \PYG{k}{if} \PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}I saw light.\PYGZdq{}}\PYG{p}{);}
+        \PYG{k}{if} \PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time} \PYG{o}{\PYGZlt{}} \PYG{n}{bit\PYGZus{}interval} \PYG{o}{\PYGZhy{}} \PYG{n}{tolerance}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+          \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}But it was too short; elapsed time = \PYGZdq{}}\PYG{p}{);}
+          \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time}\PYG{p}{);}
+          \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}ms.\PYGZdq{}}\PYG{p}{);}
+          \PYG{k}{continue}\PYG{p}{;}
+        \PYG{p}{\PYGZcb{}}
+        \PYG{k}{else} \PYG{k}{if} \PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time} \PYG{o}{\PYGZgt{}} \PYG{n}{bit\PYGZus{}interval} \PYG{o}{+} \PYG{n}{tolerance}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+          \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}But it was too long; elapsed\PYGZus{}time = \PYGZdq{}}\PYG{p}{);}
+          \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time}\PYG{p}{);}
+          \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}ms.\PYGZdq{}}\PYG{p}{);}
+          \PYG{k}{continue}\PYG{p}{;}
+        \PYG{p}{\PYGZcb{}}
+        \PYG{k}{else} \PYG{p}{\PYGZob{}}
+          \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}I think I saw a start bit. It lasted \PYGZdq{}}\PYG{p}{);}
+          \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time}\PYG{p}{);}
+          \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{} milliseconds.\PYGZdq{}}\PYG{p}{);}
+          \PYG{n}{valid\PYGZus{}start\PYGZus{}bit} \PYG{o}{=} \PYG{n+nb}{true}\PYG{p}{;}
+          \PYG{k}{break}\PYG{p}{;}
+        \PYG{p}{\PYGZcb{}}
+      \PYG{p}{\PYGZcb{}}
+      \PYG{n}{delay}\PYG{p}{(}\PYG{n}{display\PYGZus{}update\PYGZus{}interval} \PYG{o}{\PYGZhy{}} \PYG{n}{elapsed\PYGZus{}time}\PYG{p}{);}
+      \PYG{n}{time\PYGZus{}since\PYGZus{}last\PYGZus{}blink} \PYG{o}{+=} \PYG{p}{(}\PYG{n}{display\PYGZus{}update\PYGZus{}interval} \PYG{o}{\PYGZhy{}} \PYG{n}{elapsed\PYGZus{}time}\PYG{p}{);}
+      \PYG{n}{elapsed\PYGZus{}time} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{c+c1}{// Reset the timer.}
+    \PYG{p}{\PYGZcb{}}
+    \PYG{k}{if} \PYG{p}{(}\PYG{n}{valid\PYGZus{}start\PYGZus{}bit}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+      \PYG{k}{break}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}}
+  \PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kt}{int} \PYG{n}{digit\PYGZus{}position} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+
+\PYG{k+kt}{void} \PYG{n+nf}{loop}\PYG{p}{()} \PYG{p}{\PYGZob{}}
+  \PYG{k+kt}{int} \PYG{n}{bits}\PYG{p}{[}\PYG{l+m+mi}{8}\PYG{p}{]} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{\PYGZcb{};}
+  \PYG{k+kt}{int} \PYG{n}{elapsed\PYGZus{}time} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{c+c1}{// milliseconds}
+
+  \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}I\PYGZsq{}m listening.\PYGZdq{}}\PYG{p}{);}
+
+  \PYG{c+c1}{// Assume bits are sent most significant bit first.}
+  \PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i}\PYG{o}{\PYGZlt{}}\PYG{l+m+mi}{7}\PYG{p}{;} \PYG{n}{i}\PYG{o}{++}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+    \PYG{n}{delay}\PYG{p}{(}\PYG{n}{bit\PYGZus{}interval} \PYG{o}{/} \PYG{l+m+mi}{2}\PYG{p}{);}
+    \PYG{n}{bits}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{digitalRead}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{);}
+
+    \PYG{c+c1}{// Flash the LED very fast to say we got a bit.}
+    \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{OUTPUT}\PYG{p}{);}
+    \PYG{n}{digitalWrite}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{HIGH}\PYG{p}{);}
+    \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{25}\PYG{p}{);}
+    \PYG{n}{digitalWrite}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{LOW}\PYG{p}{);}
+
+    \PYG{c+c1}{// Return LED to input state.}
+    \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{INPUT}\PYG{p}{);}
+  \PYG{p}{\PYGZcb{}}
+
+  \PYG{c+c1}{// Finish out the last bit interval.}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{n}{bit\PYGZus{}interval} \PYG{o}{/} \PYG{l+m+mi}{2}\PYG{p}{);}
+  \PYG{c+c1}{// Wait out the stop bit;}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{n}{bit\PYGZus{}interval}\PYG{p}{);}
+
+  \PYG{c+c1}{// Long flash to say we got a byte.}
+  \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{OUTPUT}\PYG{p}{);}
+  \PYG{n}{digitalWrite}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{HIGH}\PYG{p}{);}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{500}\PYG{p}{);}
+  \PYG{n}{digitalWrite}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{LOW}\PYG{p}{);}
+
+  \PYG{c+c1}{// Decode the bits and display what we got.}
+  \PYG{k+kt}{char} \PYG{n}{byte} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+
+  \PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i}\PYG{o}{=}\PYG{l+m+mi}{7}\PYG{p}{;} \PYG{n}{i}\PYG{o}{\PYGZgt{}=}\PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i}\PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+    \PYG{n}{byte} \PYG{o}{+=} \PYG{p}{(}\PYG{n}{bits}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{\PYGZlt{}\PYGZlt{}} \PYG{n}{i}\PYG{p}{);}
+    \PYG{c+c1}{// Clear out bits for next time.}
+    \PYG{n}{bits}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+  \PYG{p}{\PYGZcb{}}
+
+  \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Got }\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s}{\PYGZdq{}}\PYG{p}{);}
+  \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{n}{byte}\PYG{p}{);}
+  \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s}{.\PYGZdq{}}\PYG{p}{);}
+
+  \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}digit\PYGZus{}position = \PYGZdq{}}\PYG{p}{);}
+  \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{n}{digit\PYGZus{}position}\PYG{p}{);}
+
+  \PYG{n}{large\PYGZus{}display\PYGZus{}buffer}\PYG{p}{[}\PYG{n}{digit\PYGZus{}position}\PYG{o}{++}\PYG{p}{]} \PYG{o}{=} \PYG{n}{byte}\PYG{p}{;}
+  \PYG{k}{if} \PYG{p}{(}\PYG{n}{digit\PYGZus{}position} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{7}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+    \PYG{n}{digit\PYGZus{}position} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+  \PYG{p}{\PYGZcb{}}
+
+  \PYG{n}{first\PYGZus{}module}\PYG{p}{();}
+  \PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{4}\PYG{p}{;} \PYG{n}{i}\PYG{o}{++}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+    \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitAscii}\PYG{p}{(}\PYG{n}{i}\PYG{p}{,} \PYG{n}{large\PYGZus{}display\PYGZus{}buffer}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]);}
+  \PYG{p}{\PYGZcb{}}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+
+  \PYG{n}{second\PYGZus{}module}\PYG{p}{();}
+  \PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{4}\PYG{p}{;} \PYG{n}{i}\PYG{o}{++}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+    \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitAscii}\PYG{p}{(}\PYG{n}{i}\PYG{p}{,} \PYG{n}{large\PYGZus{}display\PYGZus{}buffer}\PYG{p}{[}\PYG{l+m+mi}{4} \PYG{o}{+} \PYG{n}{i}\PYG{p}{]);}
+  \PYG{p}{\PYGZcb{}}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+
+  \PYG{c+c1}{// Wait for the next start bit.}
+  \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{,} \PYG{n}{INPUT}\PYG{p}{);}
+  \PYG{k}{while}\PYG{p}{(}\PYG{o}{!}\PYG{n}{digitalRead}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{))} \PYG{p}{\PYGZob{}}
+    \PYG{n}{delay}\PYG{p}{(}\PYG{n}{bit\PYGZus{}sampling\PYGZus{}time}\PYG{p}{);}
+  \PYG{p}{\PYGZcb{}}
+  \PYG{k}{while}\PYG{p}{(}\PYG{n}{digitalRead}\PYG{p}{(}\PYG{n}{LED\PYGZus{}BUILTIN}\PYG{p}{))} \PYG{p}{\PYGZob{}}
+    \PYG{n}{delay}\PYG{p}{(}\PYG{n}{bit\PYGZus{}sampling\PYGZus{}time}\PYG{p}{);}
+    \PYG{n}{elapsed\PYGZus{}time} \PYG{o}{+=} \PYG{n}{bit\PYGZus{}sampling\PYGZus{}time}\PYG{p}{;}
+  \PYG{p}{\PYGZcb{}}
+  \PYG{k}{if} \PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+    \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}I saw light.\PYGZdq{}}\PYG{p}{);}
+    \PYG{k}{if} \PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time} \PYG{o}{\PYGZlt{}} \PYG{n}{bit\PYGZus{}interval} \PYG{o}{\PYGZhy{}} \PYG{n}{tolerance}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+      \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}But it was too short; elapsed time = \PYGZdq{}}\PYG{p}{);}
+      \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time}\PYG{p}{);}
+      \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}ms.\PYGZdq{}}\PYG{p}{);}
+    \PYG{p}{\PYGZcb{}}
+    \PYG{k}{else} \PYG{k}{if} \PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time} \PYG{o}{\PYGZgt{}} \PYG{n}{bit\PYGZus{}interval} \PYG{o}{+} \PYG{n}{tolerance}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+      \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}But it was too long; elapsed\PYGZus{}time = \PYGZdq{}}\PYG{p}{);}
+      \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time}\PYG{p}{);}
+      \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}ms.\PYGZdq{}}\PYG{p}{);}
+    \PYG{p}{\PYGZcb{}}
+    \PYG{k}{else} \PYG{p}{\PYGZob{}}
+      \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}I think I saw a start bit. It lasted \PYGZdq{}}\PYG{p}{);}
+      \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{print}\PYG{p}{(}\PYG{n}{elapsed\PYGZus{}time}\PYG{p}{);}
+      \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{} milliseconds.\PYGZdq{}}\PYG{p}{);}
+    \PYG{p}{\PYGZcb{}}
+  \PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kt}{void} \PYG{n+nf}{safe\PYGZus{}alpha\PYGZus{}write}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{digit}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{i}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+  \PYG{k}{if}\PYG{p}{(}\PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{)}\PYG{n}{strlen}\PYG{p}{(}\PYG{n}{string\PYGZus{}to\PYGZus{}display}\PYG{p}{))} \PYG{p}{\PYGZob{}}
+        \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitAscii}\PYG{p}{(}\PYG{n}{digit}\PYG{p}{,} \PYG{n}{string\PYGZus{}to\PYGZus{}display}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]);}
+  \PYG{p}{\PYGZcb{}}
+  \PYG{k}{else} \PYG{p}{\PYGZob{}}
+    \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitAscii}\PYG{p}{(}\PYG{n}{digit}\PYG{p}{,} \PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}}\PYG{p}{);}
+  \PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kt}{void} \PYG{n+nf}{lamp\PYGZus{}test}\PYG{p}{(}\PYG{k+kt}{void}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{begin}\PYG{p}{(}\PYG{l+m+mh}{0x70}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mh}{0xFFFF}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mh}{0x0}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mh}{0xFFFF}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mh}{0x0}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mh}{0xFFFF}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mh}{0x0}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mh}{0xFFFF}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mh}{0x0}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{begin}\PYG{p}{(}\PYG{l+m+mh}{0x71}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mh}{0xFFFF}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mh}{0x00}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mh}{0xFFFF}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mh}{0x0}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mh}{0xFFFF}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mh}{0x0}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mh}{0xFFFF}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{50}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDigitRaw}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mh}{0x0}\PYG{p}{);}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kt}{void} \PYG{n+nf}{clear\PYGZus{}display}\PYG{p}{(}\PYG{k+kt}{void}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+  \PYG{n}{first\PYGZus{}module}\PYG{p}{();}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{clear}\PYG{p}{();}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+  \PYG{n}{second\PYGZus{}module}\PYG{p}{();}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{clear}\PYG{p}{();}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{writeDisplay}\PYG{p}{();}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kt}{void} \PYG{n+nf}{first\PYGZus{}module}\PYG{p}{(}\PYG{k+kt}{void}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{begin}\PYG{p}{(}\PYG{l+m+mh}{0x70}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kt}{void} \PYG{n+nf}{second\PYGZus{}module}\PYG{p}{(}\PYG{k+kt}{void}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+  \PYG{n}{alpha4}\PYG{p}{.}\PYG{n}{begin}\PYG{p}{(}\PYG{l+m+mh}{0x71}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}
