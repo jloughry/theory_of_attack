@@ -4,6 +4,7 @@
 \usepackage{hyperref}
 \usepackage{minted}
 \usepackage{siunitx}
+\usepackage{textcomp}
 \usepackage{url}
 \begin{document}
 \title{The theory of Light Emitting Diode (LED) reversing attacks}
@@ -27,11 +28,21 @@ connection GPIO.
 \section{Digital and Analogue GPIO pins}
 This is only using digital pins. Analogue I/O pins, available on some
 computers, open up a wider realm of possibility.
-\subsection{Predictions}
+\subsection{Predictions}A
+\begin{enumerate}
+  \item LED photocurrent\textrightarrow voltage on GPIO pin\textrightarrow
+    \SI{3.3}{\volt} or \SI{5}{\volt} logic threshold\textrightarrow
+    vulnerability.
+  \item The pin 13 LED on Arduino is active during uploading. The bootloader
+    subsystem on Arduino might be directly vulnerable and would serve the
+    purpose of the malware.
+\end{enumerate}
 \section{What Systems are Affected}
 Arduino. Not the Raspberry Pi. Atmel ATSAMD21.
 \subsection{Arduino}
 Only the Arduino R1, b/c of the op-amp in R3.
+\subsection{Microcontrollers and SoCs}
+ATmega, ARM Cortex, Intel Quark, ATTiny at least.
 \subsection{Voting Machines}
 Example of what embedded systems might be at risk.
 \bibliographystyle{plain}
