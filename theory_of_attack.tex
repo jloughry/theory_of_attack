@@ -64,5 +64,180 @@ void loop() {
   pinMode(LED_BUILTIN, OUTPUT);
 }
 \end{minted}
+This is driving a couple of Adafruit 14-segment alphanumeric displays via
+I\textsuperscript{2}C. It blinks the pin 13 LED and also continuously scrolls
+`NORMAL OPERATION' on the alphanumeric display until it sees a start bit on the
+pin 13 LED. When it does, it drops into the \texttt{loop()} function.
+\begin{minted}{c}
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include "Adafruit_LEDBackpack.h"
+
+Adafruit_AlphaNum4 alpha4 = Adafruit_AlphaNum4();
+
+char string_to_display[] = "        NORMAL OPERATION";
+
+char canary[] = "CANARY";
+
+char displaybuffer[4] = {' ', ' ', ' ', ' '};
+char largedisplaybuffer[8] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+
+void first_module(void);
+void second_module(void);
+void safe_alpha_write(int digit, int i);
+void lamp_test(void);
+void clear_display(void);
+
+void setup() {
+  bool valid_start_bit = false;
+
+  Serial.begin(9600);
+  Serial.println("In setup()");
+
+  clear_display();
+
+  for(;;) {
+    int time_since_last_blink = 0; // milliseconds
+    for (int i = 0; i < (int)strlen(string_to_display); i++) {
+      int elapsed_time = 0; // milliseconds
+      const int blink_interval = 1000; // milliseconds
+      const int display_update_interval = 150; // milliseconds
+      const int bit_sampling_time = 5; // milliseconds
+      const int bit_interval = 1000; // milliseconds
+      const int tolerance = 500; // milliseconds
+
+      first_module();
+      for (int position = 0; position < 4; position++) {
+        safe_alpha_write(position, i + position);
+      }
+      alpha4.writeDisplay();
+
+      second_module();
+      for (int position = 0; position < 4; position++) {
+        safe_alpha_write(position, i + position + 4);
+      }
+      alpha4.writeDisplay();
+
+      // Only blink the LED if it's time to.
+      if (time_since_last_blink >= blink_interval) {
+        pinMode(LED_BUILTIN,OUTPUT);
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(50);
+        digitalWrite(LED_BUILTIN, LOW);
+        time_since_last_blink = 0;
+      }
+
+      pinMode(LED_BUILTIN, INPUT);
+
+      // I'm not sure if this first digitalRead() is necessary.
+      (void)digitalRead(LED_BUILTIN);
+
+      while(digitalRead(LED_BUILTIN)) {
+        delay(bit_sampling_time);
+        time_since_last_blink += bit_sampling_time;
+        elapsed_time += bit_sampling_time;
+      }
+      if (elapsed_time > 0) {
+        Serial.println("I saw light.");
+        if (elapsed_time < bit_interval - tolerance) {
+          Serial.print("But it was too short; elapsed time = ");
+          Serial.print(elapsed_time);
+          Serial.println("ms.");
+          continue;
+        }
+        else if (elapsed_time > bit_interval + tolerance) {
+          Serial.print("But it was too long; elapsed_time = ");
+          Serial.print(elapsed_time);
+          Serial.println("ms.");
+          continue;
+        }
+        else {
+          Serial.print("I think I saw a start bit. It lasted ");
+          Serial.print(elapsed_time);
+          Serial.println(" milliseconds.");
+          valid_start_bit = true;
+          break;
+        }
+      }
+      delay(display_update_interval - elapsed_time);
+      time_since_last_blink += (display_update_interval - elapsed_time);
+      elapsed_time = 0; // Reset the timer.
+    }
+    if (valid_start_bit) {
+      break;
+    }
+  }
+}
+
+void loop() {
+  Serial.println("I'm listening.");
+  delay(10000);
+}
+
+void safe_alpha_write(int digit, int i) {
+  if(i < (int)strlen(string_to_display)) {
+        alpha4.writeDigitAscii(digit, string_to_display[i]);
+  }
+  else {
+    alpha4.writeDigitAscii(digit, ' ');
+  }
+}
+
+void lamp_test(void) {
+  alpha4.begin(0x70);
+  alpha4.writeDigitRaw(0, 0xFFFF);
+  alpha4.writeDisplay();
+  delay(50);
+  alpha4.writeDigitRaw(0, 0x0);
+  alpha4.writeDigitRaw(1, 0xFFFF);
+  alpha4.writeDisplay();
+  delay(50);
+  alpha4.writeDigitRaw(1, 0x0);
+  alpha4.writeDigitRaw(2, 0xFFFF);
+  alpha4.writeDisplay();
+  delay(50);
+  alpha4.writeDigitRaw(2, 0x0);
+  alpha4.writeDigitRaw(3, 0xFFFF);
+  alpha4.writeDisplay();
+  delay(50);
+  alpha4.writeDigitRaw(3, 0x0);
+  alpha4.writeDisplay();
+  alpha4.begin(0x71);
+  alpha4.writeDigitRaw(0, 0xFFFF);
+  alpha4.writeDisplay();
+  delay(50);
+  alpha4.writeDigitRaw(0, 0x00);
+  alpha4.writeDigitRaw(1, 0xFFFF);
+  alpha4.writeDisplay();
+  delay(50);
+  alpha4.writeDigitRaw(1, 0x0);
+  alpha4.writeDigitRaw(2, 0xFFFF);
+  alpha4.writeDisplay();
+  delay(50);
+  alpha4.writeDigitRaw(2, 0x0);
+  alpha4.writeDigitRaw(3, 0xFFFF);
+  alpha4.writeDisplay();
+  delay(50);
+  alpha4.writeDigitRaw(3, 0x0);
+  alpha4.writeDisplay();
+}
+
+void clear_display(void) {
+  first_module();
+  alpha4.clear();
+  alpha4.writeDisplay();
+  second_module();
+  alpha4.clear();
+  alpha4.writeDisplay();
+}
+
+void first_module(void) {
+  alpha4.begin(0x70);
+}
+
+void second_module(void) {
+  alpha4.begin(0x71);
+}
+\end{minted}
 \end{document}
 
