@@ -30,14 +30,21 @@ send_0() {
   laser_off
 }
 
+# This version of Manchester code uses conventional start bits.
+
 start_bit() {
   echo "Sending start bit."
-  send_1
+  laser_on
+  sleep $bit_interval
+  laser_off
 }
+
+# This version of Manchester code uses conventional stop bits.
 
 stop_bit() {
   echo "Sending stop bit."
-  send_0
+  laser_off
+  sleep $bit_interval
 }
 
 binary_1() {
