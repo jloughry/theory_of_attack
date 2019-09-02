@@ -333,7 +333,7 @@ void clear_entire_display(void) {
 void scroll_horizontal_line_up_and_down(void) {
   for (uint8_t row=0; row < module_width; row++) {
     for (uint8_t module=0; module<number_of_modules; module++) {
-      matrix[module].drawFastVLine(module_width - row,0, module_width,r
+      matrix[module].drawFastVLine(module_width - row,0, module_width,
         LED_YELLOW);
       matrix[module].writeDisplay();
     }
