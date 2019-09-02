@@ -1,6 +1,7 @@
 #!/bin/sh
 
 bit_interval=1.5
+half_interval=0.75
 
 gpioctl -n 20 laser
 gpioctl -c laser out
@@ -9,32 +10,44 @@ laser_off() {
   gpioctl laser 0
 }
 
+laser_on() {
+  gpioctl laser 1
+}
+
+send_1() {
+  laser_on
+  sleep $half_interval
+  laser_off
+  sleep $half_interval
+}
+
+send_0() {
+  laser_off
+  sleep $half_interval
+  laser_on
+  sleep $half_interval
+  # I'm not sure about this last step.
+  laser_off
+}
+
 start_bit() {
   echo "Sending start bit."
-  gpioctl laser 1
-  sleep $bit_interval
-  gpioctl laser 0
+  send_1
 }
 
 stop_bit() {
   echo "Sending stop bit."
-  sleep $bit_interval
+  send_0
 }
 
 binary_1() {
   echo "  Sending binary 1..."
-  gpioctl laser 1
-  sleep $bit_interval
-  gpioctl laser 0
+  send_1
 }
 
 binary_0() {
   echo "  Sending binary 0..."
-  sleep $bit_interval
-}
-
-intercharacter_delay() {
-  sleep 2
+  send_0
 }
 
 echo "Bits are sent most significant bit first."
@@ -124,16 +137,12 @@ send_ASCII_d() {
   stop_bit
 }
 
+# Don't use intercharacter delays with Manchester coding: synchronous.
 send_ASCII_p
-intercharacter_delay
 send_ASCII_0
-intercharacter_delay
 send_ASCII_w
-intercharacter_delay
 send_ASCII_n
-intercharacter_delay
 send_ASCII_e
-intercharacter_delay
 send_ASCII_d
 
 # For safety:
