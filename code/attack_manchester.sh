@@ -1,7 +1,10 @@
 #!/bin/sh
 
+lockfile="./attack_lockfile"
 bit_interval=1.5
 half_interval=0.75
+
+echo "ATTACK BEGINS"
 
 gpioctl -n 20 laser
 gpioctl -c laser out
@@ -154,3 +157,7 @@ send_ASCII_d
 
 # For safety:
 laser_off
+
+echo "ATTACK ENDS"
+rm -f $lockfile
+

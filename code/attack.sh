@@ -1,6 +1,9 @@
 #!/bin/sh
 
-bit_interval=1.5
+lockfile="./attack_lockfile"
+bit_interval=0.350
+
+echo "ATTACK BEGINS"
 
 gpioctl -n 20 laser
 gpioctl -c laser out
@@ -34,7 +37,7 @@ binary_0() {
 }
 
 intercharacter_delay() {
-  sleep 2
+  sleep 0.5
 }
 
 echo "Bits are sent most significant bit first."
@@ -139,3 +142,5 @@ send_ASCII_d
 # For safety:
 laser_off
 
+echo "ATTACK ENDS"
+rm -f $lockfile

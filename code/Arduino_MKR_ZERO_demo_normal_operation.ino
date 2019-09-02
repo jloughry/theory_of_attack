@@ -12,9 +12,9 @@ const int number_of_modules = 6;
 int attack_index = 0;
 char attack_character = 'X';
 
-const int bit_interval = 1000; // milliseconds
-const int tolerance = 750; // milliseconds
-const int bit_sampling_time = 50; // milliseconds
+const int bit_interval = 350; // milliseconds
+const int tolerance = 200; // milliseconds
+const int bit_sampling_time = 5; // milliseconds
 int start_bit_duration = 0; // This is a measured value.
 
 char * blank_padded_string = NULL;
@@ -87,7 +87,7 @@ void setup() {
       pinMode(LED_BUILTIN, INPUT);
 
       // I'm not sure if this first digitalRead() is necessary.
-      (void)digitalRead(LED_BUILTIN);
+      // (void)digitalRead(LED_BUILTIN);
 
       while(digitalRead(LED_BUILTIN)) {
         delay(bit_sampling_time);
@@ -123,6 +123,10 @@ void setup() {
     }
     if (valid_start_bit) {
       Serial.println("I'm listening.");
+      start_bit_duration = 1.1 * bit_interval;
+      Serial.print("I'm resetting the initial start bit duration to ");
+      Serial.print(start_bit_duration);
+      Serial.println(" ms.");
       break;
     }
   }
@@ -149,7 +153,9 @@ void loop() {
     // Try to look in about the middle of each bit interval.
     elapsed_time = 0;
     while (elapsed_time < 0.5 * start_bit_duration) {
+      #ifdef VERBOSE
       Serial.println(digitalRead(LED_BUILTIN));
+      #endif
       delay(bit_sampling_time);
       elapsed_time += bit_sampling_time;
     }
@@ -175,20 +181,28 @@ void loop() {
     // Wait out the duration of the data bit.
     elapsed_time = 0;
     while (elapsed_time < 0.5 * start_bit_duration) {
+      #ifdef VERBOSE
       Serial.println(digitalRead(LED_BUILTIN));
+      #endif
       delay(bit_sampling_time);
       elapsed_time += bit_sampling_time;
     }
+    #ifdef VERBOSE
     Serial.println("We are no longer considering the bit.");
+    #endif
   }
   // Wait out the last data bit.
   elapsed_time = 0;
   while(elapsed_time < 0.5 * start_bit_duration) {
+    #ifdef VERBOSE
     Serial.println(digitalRead(LED_BUILTIN));
+    #endif
     delay(bit_sampling_time);
     elapsed_time += bit_sampling_time;
   }
+  #ifdef VERBOSE
   Serial.println("We are no longer considering last data bit.");
+  #endif
   // Verify that we got a good stop bit for framing.
   elapsed_time = 0;
   while(digitalRead(LED_BUILTIN)) {
@@ -283,7 +297,7 @@ void clear_entire_display(void) {
 void scroll_horizontal_line_up_and_down(void) {
   for (uint8_t row=0; row < module_width; row++) {
     for (uint8_t module=0; module<number_of_modules; module++) {
-      matrix[module].drawFastVLine(module_width - row,0, module_width,r
+      matrix[module].drawFastVLine(module_width - row,0, module_width,
         LED_YELLOW);
       matrix[module].writeDisplay();
     }
