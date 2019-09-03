@@ -343,6 +343,7 @@ void initialise_serial_port(void) {
   Serial.begin(9600);
   Serial.println("Hello World");
   // It takes about 2 seconds before the serial port is ready.
+  /*
   const int serial_port_wait = 5; // seconds
   Serial.print("Waiting ");
   Serial.print(serial_port_wait);
@@ -353,6 +354,7 @@ void initialise_serial_port(void) {
     delay(1000);
   }
   Serial.println("\nReady to go.");
+  */
 }
 
 void initialise_data_structure_for_matrices(void) {
