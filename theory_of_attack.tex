@@ -31,6 +31,16 @@ Spain.}
 \section{Theory of Operation}
 Relationship between LED photocurrent, voltage, and the logic threshold of the
 connection GPIO.
+\section{The uneasy problem of malware}
+Is it cheating to use a malware to receive transmissions> Yes, and no, and yes.
+
+Yes---because how it got there is explicitly out of scope.
+
+No---because Stuxnet showed that adversaries can load malware onto isolated
+systems \cite{Goldberg2019b,Winer2019}.
+
+Yes---because we don't have a way in w/o malware yet, although we're working on
+it.
 \section{Industrial use of Arduino-class SBCs}
 Increasingly, these machines are used for critical industrial controls:
 \begin{quote}
@@ -56,7 +66,7 @@ By tradition, every Arduino has an LED on pin 13.
     vulnerability.
   \item The pin 13 LED on Arduino is active during uploading. The bootloader
     subsystem on Arduino might be directly vulnerable and would serve the
-    purpose of the malware.
+    purpose of the malware. (Eike also spotted this right away.)
 \end{enumerate}
 \section{What Systems are Affected}
 Arduino. Not the Raspberry Pi. Atmel ATSAMD21.
